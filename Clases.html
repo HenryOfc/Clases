@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda de Cuentas Streaming</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            position: relative; /* Necesario para el posicionamiento absoluto del botón */
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            position: relative;
+        }
+        .contact-button {
+            position: fixed; /* Cambiado a fixed para que permanezca en la parte inferior izquierda */
+            bottom: 10px; /* Ajustado para estar a 10px del fondo */
+            left: 10px; /* Ajustado para estar a 10px del lado izquierdo */
+            background-color: #0078ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .contact-button:hover {
+            background-color: #005bb5;
+        }
+        .container {
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .item {
+            background: white;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tienda de Cuentas Streaming</h1>
+    </header>
+    <div class="container">
+        <div class="item">
+            <h2>Cuenta Netflix</h2>
+            <p>Descripción de la cuenta Netflix.</p>
+            <p>Precio: $10</p>
+        </div>
+        <div class="item">
+            <h2>Cuenta Spotify</h2>
+            <p>Descripción de la cuenta Spotify.</p>
+            <p>Precio: $5</p>
+        </div>
+        <!-- Puedes añadir más ítems aquí -->
+    </div>
+    <button class="contact-button" onclick="contactSeller()">Contactar por Telegram</button>
+    <script>
+        function contactSeller() {
+            var telegramUsername = '@hjofc';
+            var telegramLink = 'https://t.me/' + telegramUsername;
+            window.open(telegramLink, '_blank');
+        }
+    </script>
+</body>
+</html>
